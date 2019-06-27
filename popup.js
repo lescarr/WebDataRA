@@ -1,8 +1,10 @@
-var STUFF="";
 var bgPage=chrome.extension.getBackgroundPage();
 var LIMIT=2000000
 var bid;
 
+
+if(!bgPage.ALREADYUSED){
+bgPage.ALREADYUSED=true
 // Inject the payload.js script into the current tab after the popout has loaded
 window.addEventListener('load', function (evt) {
 	chrome.extension.getBackgroundPage().chrome.tabs.executeScript(null, {
@@ -10,8 +12,9 @@ window.addEventListener('load', function (evt) {
 	});;
 
 	bid=document.getElementById('saveOutput');
-	bid.addEventListener("click", saveOutput, false);
+	if(bid)bid.addEventListener("click", saveOutput, false);
 });
+}
 
 
 // Listen to messages from the payload.js script and write to popout.html
@@ -26,6 +29,7 @@ chrome.runtime.onMessage.addListener(function (message) {
 		if(start<0) start=message.url.search(/[?&]page=/) // Core
 		if(start<0) start=message.url.search("[?&]p=") //github
 		if(start<0){
+			//JUST TESTING. DELETE COMMENTS WHEN FINISHED
 			bgPage.STUFF="";
 			offset=0;
 			}
@@ -36,12 +40,14 @@ chrome.runtime.onMessage.addListener(function (message) {
 			if(end>0)str=str.substr(0,end);
 			offset=str*1
 			}
-		if(offset==0)bgPage.STUFF=message.data
+		//if(offset==0)bgPage.STUFF=message.data
+		if(offset==0)bgPage.STUFF="<p>Captured "+message.nrecs+" records.</p>"+message.data
+		else if(offset<0)bgPage.STUFF+="<hr>"+message.data //DELETE THIS
 		else bgPage.STUFF=bgPage.STUFF.slice(0,-7)+message.data.substr(8);
 
 		eid.innerHTML = bgPage.STUFF;
 		if(bgPage.STUFF.length<LIMIT){
-			copyToClipboard(bgPage.STUFF);
+			//copyToClipboard(bgPage.STUFF);
     			//saveAsFile(bid, bgPage.STUFF, "WebDataRA-"+new Date().toISOString().substring(0,19)+".html");
 			}
 		else{

@@ -5,10 +5,88 @@ var CATEGORIES=[];
 var PLATFORM=[];
 var FEATURECOUNT=[];
 var FEATURENOTE=[];
+var FEATUREDICT={};
 var FEATURES=1;
 var COLOR=[]
 var thisYear=new Date().getFullYear();
 var nRecs=0;
+var myID=Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+//myID will change each time the page is reloaded and indicates that a new data
+//collection context has started
+var port; //this is just to signal the bgPage when this page is closed
+//the bgPage waits for a disconnect
+
+PLATFORM["ACMDL"]=[
+	{name:'row', element:'div.details', direction:1, features:0, multipage:1, autoScroll:0},
+	{name:'Title', element:'div.title a'},
+	{name:'ID', element:'div.title a', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Authors', element:'div.authors'},
+	{name:'Author 1', element:'div.authors a:nth-child(1)'},
+	{name:'Profile 1', element:'div.authors a:nth-child(1)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 2', element:'div.authors a:nth-child(2)'},
+	{name:'Profile 2', element:'div.authors a:nth-child(2)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 3', element:'div.authors a:nth-child(3)'},
+	{name:'Profile 3', element:'div.authors a:nth-child(3)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 4', element:'div.authors a:nth-child(4)'},
+	{name:'Profile 4', element:'div.authors a:nth-child(4)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Publication Date', element:'div.source span.publicationDate'},
+	{name:'Source', element:'div.source span:nth-child(2)'},
+	{name:'FullText', element:'div.ft a', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Abstract', element:'div.abstract'},
+	{name:'Keywords', element:'div.kw', transform:x=>x.substring(11)},
+	{name:'Citations', element:'span.citedCount', transform:x=>x.substring(16)},
+	{name:'Downloads', element:'span.downloadAll', transform:x=>x.substring(21)}
+	]
+
+PLATFORM["ACMAUTHOR"]=[
+	{name:'row', element:'body', direction:1, features:0, multipage:1, autoScroll:0},
+	{name:'Author', element:'span.small-text strong'},
+	{name:'Institution', element:'td.small-text div a'},
+	{name:'Authors', element:'div.authors'},
+	{name:'Author 1', element:'div.authors a:nth-child(1)'},
+	{name:'Profile 1', element:'div.authors a:nth-child(1)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 2', element:'div.authors a:nth-child(2)'},
+	{name:'Profile 2', element:'div.authors a:nth-child(2)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 3', element:'div.authors a:nth-child(3)'},
+	{name:'Profile 3', element:'div.authors a:nth-child(3)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Author 4', element:'div.authors a:nth-child(4)'},
+	{name:'Profile 4', element:'div.authors a:nth-child(4)', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Publication Date', element:'div.source span.publicationDate'},
+	{name:'Source', element:'div.source span:nth-child(2)'},
+	{name:'FullText', element:'div.ft a', attribute:'href', transform:x=>"https://dl.acm.org/"+x},
+	{name:'Abstract', element:'div.abstract'},
+	{name:'Keywords', element:'div.kw', transform:x=>x.substring(11)},
+	{name:'Citations', element:'span.citedCount', transform:x=>x.substring(16)},
+	{name:'Downloads', element:'span.downloadAll', transform:x=>x.substring(21)}
+	]
+
+PLATFORM["QuoraQuestion"]=[
+	{name:'row', element:'div.UnifiedAnswerPagedList div.pagedlist_item', direction:1, features:0, multipage:0, autoScroll:1},
+	{name:'Author', element:'div.feed_item_answer_user a.user'},
+	{name:'Profile', element:'div.feed_item_answer_user a.user', attribute:'href', transform:x=>"https://quora.com"+x},
+	{name:'Credential', element:'div.feed_item_answer_user span.NameCredential', transform:x=>x.indexOf(", ")==0 ? x.substring(2): x},
+	//{name:'Truncated', element:'div.ui_qtext_truncated_text'},
+	{name:'Answer Text', element:'div.ui_qtext_expanded'},
+	{name:'Timestamp', element:'a.answer_permalink'},
+	{name:'ID', element:'a.answer_permalink', attribute:'href', transform:x=>"https://quora.com"+x}
+	]
+
+PLATFORM["QuoraProfile"]=[
+	{name:'row', element:'div.UserPage', direction:1, features:0, multipage:0, autoScroll:0},
+	{name:'ID', element:'div.ProfileNameAndSig span.user'},
+	{name:'Credential', element:'div.ProfileNameAndSig span.UserCredential'},
+	{name:'Description', element:'div.ProfileDescription'},
+	{name:'Followers', element:'li.FollowersNavItem span.list_count'},
+	{name:'Following', element:'li.FollowingNavItem span.list_count'},
+	{name:'Work', element:'div.WorkCredentialListItem'},
+	{name:'School', element:'div.SchoolCredentialListItem'},
+	{name:'Location', element:'div.LocationCredentialListItem'},
+	{name:'Topic1', element:'li.ProfileExperienceItem:nth-child(1) a.topic_name'},
+	{name:'Topic2', element:'li.ProfileExperienceItem:nth-child(2) a.topic_name'},
+	{name:'Topic3', element:'li.ProfileExperienceItem:nth-child(3) a.topic_name'},
+	{name:'Topic4', element:'li.ProfileExperienceItem:nth-child(4) a.topic_name'},
+	{name:'Topic5', element:'li.ProfileExperienceItem:nth-child(5) a.topic_name'}
+	]
 
 PLATFORM["Core"]=[
 	{name:'row', element:'div.result-sum', direction:1, features:0, multipage:1, curPageSelector:"ul.pagination li.active"},
@@ -32,7 +110,7 @@ PLATFORM["SSRN"]=[
 	]
 
 PLATFORM["twitter"]=[
-	{name:'row', element:'li.stream-item', direction:-1, features:1, multipage:0},
+	{name:'row', element:'li.stream-item', direction:1, features:1, multipage:0, autoScroll:1},
 	{name:'ID', element:'', attribute:'data-item-id', transform:function(x){return '"'+x+'"'}},
 	{name:'Replies', element:'div.ProfileTweet-action--reply span.ProfileTweet-actionCount'},
 	//Likes and Retweets may be rounded off to 1.2K or similar
@@ -43,7 +121,6 @@ PLATFORM["twitter"]=[
 	{name:'Author', element:'.tweet-timestamp', attribute:'href', transform:function(x){y=x.indexOf("/",1);return x.substring(1,y)}},
 	{name:'Mentions', element:'.tweet', attribute:'data-mentions'},
 	{name:'Hashtags', element:'.js-tweet-text', transform:function(x){var sani=x.replace(/http\S+/g,'').replace(/pic.twitter.com\S+/g,''); var ht=sani.match(/\#\S+/g); return ht ? ht.join(" ") : "" }},
-	{name:'Embedded URL', element:'.twitter-timeline-link', attribute:'data-expanded-url'},
 	// Doesn't exist in the standard tweetstream {name:'Place', element:'.permalink-tweet-geo-text', transform:function(x){ return x.replace(/from /,'')} },
 	{name:'Text', element:'.js-tweet-text'},
 	{name:'URL', element:'.tweet-timestamp', attribute:'href', transform:function(x){return "https://twitter.com"+x}},
@@ -58,6 +135,10 @@ FEATURECOUNT["Author2"]=[];
 FEATURECOUNT["Mentions"]=[];
 FEATURECOUNT["Mentions2"]=[];
 FEATURECOUNT["Hashtags"]=[];
+FEATURECOUNT["Hashtags2"]=[];
+FEATURECOUNT["Edges"]=[];
+FEATURECOUNT["IDs"]=[];
+FEATUREDICT={};
 
 PLATFORM["google"]=[
 	{name:'row', element:"div.g div.rc", direction:1, features:0, multipage:1, curPageSelector:"td.cur"},
@@ -90,15 +171,12 @@ PLATFORM["github"]=[
 	];
 
 PLATFORM["facebook"]=[
-	{name:'row', element:'.userContentWrapper', direction:-1, features:0, multipage:0},
+	{name:'row', element:'.userContentWrapper', direction:-1, features:0, multipage:0, autoScroll:1},
 	{name:'Timestamp', element:'abbr', attribute:'title', transform:function(x){return x.replace(' at ',' ').replace(/\w+, /,'') }},
-	//{name:'Reactions', element:'span[data-tooltip-uri]'},
-	//{name:'Reactions', element:'span[aria-hidden] ._81hb'},
-	{name:'Reactions', element:'a[data-testid="UFI2ReactionsCount/root"] span[aria-hidden]'},
-	//{name:'Shares', element:'a.UFIShareLink', transform:function(x){return x.replace(' shares','')}},
-	{name:'Shares', element:'a[data-testid="UFI2SharesCount/root"]', transform:function(x){return x.replace(' shares','').replace(' share','')}},
-	//{name:'Comments', element:'a.UFIPagerLink', transform:function(x){return x.replace(' comments','').replace('View all ','').replace('View more','') }},
-	{name:'Comments', element:'a[data-testid="UFI2CommentsCount/root"]', transform:function(x){return x.replace(' comments','').replace(' comment','').replace('View all ','').replace('View more','') }},
+	{name:'Reactions', element:'span[aria-hidden] ._81hb'},
+	//updated 20th June 2019 {name:'Reactions', element:'span[data-tooltip-uri]'},
+	{name:'Shares', element:'a.UFIShareLink', transform:function(x){return x.replace(' shares','')}},
+	{name:'Comments', element:'a.UFIPagerLink', transform:function(x){return x.replace(' comments','').replace('View all ','').replace('View more','') }},
 	{name:'Text', element:'.userContent'},
 	{name:'URL', element:'a[ajaxify]', attribute:'href', transform:function(x){return "https://www.facebook.com"+x}}
 	]
@@ -123,33 +201,39 @@ COLOR['Accounts']=['#7DCEA0','#D4EFDF', '#E9F7EF'];
 
 function platformToString(pName){
 	var platform=PLATFORM[pName];
-	var recs=document.querySelectorAll(platform[0].element);
+	var recs=document.querySelectorAll(platform[0].element+":not(.removed)");
 	
 	var s="";
+	var header="", footer="";
+	var aTweet=""
 
-	FEATURECOUNT["Author"]=[];
-	FEATURECOUNT["Author2"]=[];
-	FEATURECOUNT["Mentions"]=[];
-	FEATURECOUNT["Mentions2"]=[];
-	FEATURECOUNT["Hashtags"]=[];
-	FEATURECOUNT["Hashtags2"]=[];
-	FEATURECOUNT["Edges"]=[];
+	// DONT DO THIS AS platformToString will be called multiple times
+	// as the page is built up
+	//FEATURECOUNT["Author"]=[];
+	//FEATURECOUNT["Author2"]=[];
+	//FEATURECOUNT["Mentions"]=[];
+	//FEATURECOUNT["Mentions2"]=[];
+	//FEATURECOUNT["Hashtags"]=[];
+	//FEATURECOUNT["Hashtags2"]=[];
+	//FEATURECOUNT["Edges"]=[];
 	
 	nRecs=recs.length
 	if(nRecs>0){
-		s+="<table><tr style='background:" + COLOR['Contents'][0] + "'><th>N</th>"
+		header+="<table><tr style='background:" + COLOR['Contents'][0] + "'><th>N</th>"
 		for(i=1;i<platform.length;i++){
 		  var p=platform[i].name
 		  var attr= (p=="URL" ? "style='width:10%'" : "")
-		  s+="<th "+attr+">"+p+"</th>"
+		  header+="<th "+attr+">"+p+"</th>"
 		  }
-		s+="</tr>"
+		header+="</tr>"
+		s+=header
 
 		var rowcol=0
 		var pgPrefix=""
 		if(platform[0].multipage==1)pgPrefix=curPage+"."
 		for(i=(platform[0].direction>0 ? 0 : recs.length-1); (i>=0 && i<recs.length); i+=platform[0].direction){
-		  s+="<tr valign='top'  style='background:" + COLOR['Contents'][1+rowcol] + "'><td>"+pgPrefix+((i+1)+'').padStart(3,'0')+"</td>"
+
+		  aTweet="<tr valign='top'  style='background:" + COLOR['Contents'][1+rowcol] + "'><td>"+pgPrefix+((i+1)+'').padStart(3,'0')+"</td>"
 		  rowcol = (rowcol + 1) % 2
 		  FEATURENOTE=[];
 
@@ -186,7 +270,7 @@ function platformToString(pName){
 			  if(theNode){
 			    var theExceptStr=theNode.textContent
 			    //this SHOULD remove from beginning or end and CHECK
-			    theRes=theRes.substr(theExceptStr.length-1)
+			    theRes=theRes.replace(theExceptStr,'')
 			    }
 			}
 		      }
@@ -283,14 +367,37 @@ function platformToString(pName){
 		     }
 
 
-		    s+="<td>"+theRes+"</td>"
+		    aTweet+="<td>"+theRes+"</td>"
 
 		  };
-		  s+="</tr>"
+		  aTweet+="</tr>"
+		  var fN=FEATURENOTE["ID"]
+		  if(fN && !FEATURECOUNT["IDs"].includes(fN)){
+		    FEATUREDICT[fN]=aTweet
+		    FEATURECOUNT["IDs"].push(fN)
+		    }
+		  s+=aTweet
 		}
-		s+="</table>"
+		footer="</table>"
+		s+=footer
+
+		//REPLACE THE ITERATION THROPUGH THE PAGE TWEETS WITH
+		//AN ITERATION THROUGH THE CAPTURED TWEET RENDERINGS IN
+		// THE FEATUREDICT because we may have incomplete
+		// set of tweets on the page due to deletions (trimUsedTweets)
+		//to save DOM space on collections of 10-20K tweets
+		var t=header
+		FEATURECOUNT["IDs"].forEach(id=>t+=FEATUREDICT[id])
+		t+=footer
+
+		/* it works. don't sweat.
+		if(s==t)s+="<p><b>SAME SAME YAY!</b></p>"
+		else s+="<p><b>DIFFERENT BOO HOO!</b></p><hr/>"+t+"<hr/><p></p>"
+		*/
+		s=t;
 
 		if(platform[0].features==1){
+		var extras=""
 		var ACCOUNTS=[];
 		if(FEATURECOUNT["Author"]){
 			var dct=FEATURECOUNT["Author"]
@@ -304,8 +411,8 @@ function platformToString(pName){
 				if(!ACCOUNTS.includes(k))ACCOUNTS.push(k);
 				}
 			}
-		s+="<p></p>"
-		s+="<table><tr style='background:"+ COLOR['Accounts'][0] +"'><th>Account</th><th>Author Count</th><th>...Inc RTs</th><th>Mention Count</th><th>...Inc RTs</th></tr>"
+		extras+="<p></p>"
+		extras+="<table><tr style='background:"+ COLOR['Accounts'][0] +"'><th>Account</th><th>Author Count</th><th>...Inc RTs</th><th>Mention Count</th><th>...Inc RTs</th></tr>"
 		ACCOUNTS.sort();
 		
 		rowcol=0
@@ -314,13 +421,13 @@ function platformToString(pName){
 			var v2=FEATURECOUNT["Author2"][ACCOUNTS[k]], s2=v2?v2+"":"";
 			var v3=FEATURECOUNT["Mentions"][ACCOUNTS[k]], s3=v3?v3+"":"";
 			var v4=FEATURECOUNT["Mentions2"][ACCOUNTS[k]], s4=v4?v4+"":"";
-			s+="<tr style='background:"+ COLOR['Accounts'][1+rowcol] +"'><td><a href='http://twitter.com/"+ACCOUNTS[k]+"'>"+ACCOUNTS[k]+"</a></td><td>"+s1+"</td><td>"+s2+"</td><td>"+s3+"</td><td>"+s4+"</td></tr>"
+			extras+="<tr style='background:"+ COLOR['Accounts'][1+rowcol] +"'><td><a href='http://twitter.com/"+ACCOUNTS[k]+"'>"+ACCOUNTS[k]+"</a></td><td>"+s1+"</td><td>"+s2+"</td><td>"+s3+"</td><td>"+s4+"</td></tr>"
 			rowcol=(rowcol+1)%2
 			}
-		s+="</table>"
+		extras+="</table>"
 
-		s+="<p></p>"
-		s+="<table><tr style='background:"+ COLOR['Network'][0] +"'><th>Source</th><th>Target</th><th>Weight</th></tr>"
+		extras+="<p></p>"
+		extras+="<table><tr style='background:"+ COLOR['Network'][0] +"'><th>Source</th><th>Target</th><th>Weight</th></tr>"
 		var dct=FEATURECOUNT["Edges"]
 		var keys = Object.keys(dct);
 		rowcol=0
@@ -328,26 +435,27 @@ function platformToString(pName){
 			var v=keys[k];
 			var a=v.split(" ");
 			var src=a[0], dst=a[1];
-			s+="<tr style='background:"+ COLOR['Network'][1+rowcol] +"'><td>"+src+"</td><td>"+dst+"</td><td>"+dct[keys[k]]+"</td></tr>"
+			extras+="<tr style='background:"+ COLOR['Network'][1+rowcol] +"'><td>"+src+"</td><td>"+dst+"</td><td>"+dct[keys[k]]+"</td></tr>"
 			rowcol=(rowcol+1)%2
 			}
-		s+="</table>"
+		extras+="</table>"
 
 		if(FEATURECOUNT["Hashtags"]){
-		s+="<p></p>"
+		extras+="<p></p>"
 		rowcol=0
 
-		s+="<table><tr style='background:"+ COLOR['Hashtags'][0] +"'><th>Hashtags</th><th>Count</th><th>...Inc RTs</th></tr>"
+		extras+="<table><tr style='background:"+ COLOR['Hashtags'][0] +"'><th>Hashtags</th><th>Count</th><th>...Inc RTs</th></tr>"
 		var dct=FEATURECOUNT["Hashtags"];
 		var dct2=FEATURECOUNT["Hashtags2"];
 		var keys = Object.keys(dct);
 		for(var k in keys.sort()){
-			s+="<tr style='background:"+ COLOR['Hashtags'][1+rowcol] +"'><td>"+keys[k]+"</td><td>"+dct[keys[k]]+"</td><td>"+dct2[keys[k]]+"</td></tr>"
+			extras+="<tr style='background:"+ COLOR['Hashtags'][1+rowcol] +"'><td>"+keys[k]+"</td><td>"+dct[keys[k]]+"</td><td>"+dct2[keys[k]]+"</td></tr>"
 			rowcol=(rowcol+1)%2
 			}
-		s+="</table>"
+		extras+="</table>"
 		}
 
+		s+=extras
 		}
 	    }
 	else { s="<b>Error:</b> "+recs.length }
@@ -362,7 +470,7 @@ function autoClickPage(platform) {
 	var curPageN=document.querySelector(PLATFORM[platform][0].curPageSelector); 
 	curPage=1; if(curPageN)curPage=Math.round(curPageN.textContent);
 	if(curPage>lastGooglePage){ googleData=platformToString(platform) }
-	chrome.runtime.sendMessage({url: document.URL, data:googleData});
+	chrome.runtime.sendMessage({url: document.URL, data:googleData, id:myID, nrecs:nRecs});
 	//var nN=document.querySelector("a#pnnext"); //if(nN){ nN.scrollIntoView(); }
 	}
 
@@ -372,19 +480,61 @@ var keepGoing=true;
 var dontEverStop=true;
 var toID=null
 
+function trimUsedTweets(){
+	const RESIDUAL=100
+        //delete the first n-RESIDUAL tweets to reserve only RESIDUAL tweets
+        var recs=document.querySelectorAll(PLATFORM["twitter"][0].element);
+        var cons=document.querySelectorAll(PLATFORM["twitter"][0].element+" .content");
+        if(cons&&cons.length>RESIDUAL){
+		var ch, cl, weirdSize
+                for(n=0; n<cons.length-RESIDUAL; n++){
+			cl=recs[n].classList
+			if(!cl.contains("removed")){
+				cl.add("removed")
+				ch=cons[n].clientHeight
+				weirdSize=Math.round(ch/14)
+				//all element heights and widths seem to be invalid!
+				//the lineheight seems to create a 14x vspace?!?
+				cons[n].innerHTML="<p style='line-height:"+weirdSize+"'>Removed</p>"
+				}
+			}
+                }
+        }
+
 function autoScrollTwitter() {
-  var sh = document.documentElement.scrollHeight;
-  if (dontEverStop || ( keepGoing && sh != lastScrollHeight )) {
-    lastScrollHeight = sh;
-    document.documentElement.scrollTop = sh;
+  //var sh = document.documentElement.scrollHeight;
+  //if (dontEverStop || ( keepGoing && sh != lastScrollHeight )) {
+    //lastScrollHeight = sh;
+    //document.documentElement.scrollTop = sh;
+
     twitterData=platformToString("twitter")
-    chrome.runtime.sendMessage({url: document.URL, data:twitterData});
+    chrome.runtime.sendMessage({url:document.URL, data:twitterData, id:myID, nrecs:nRecs});
+
+    //trigger Twitter to send more stuff
+    //scroll to the last tweet (this should really reference
+    //PLATFORM["twitter"][0].element
+    //window.scrollTo(0,0)
+    document.querySelector("li.stream-item:last-of-type").scrollIntoView() 
+
+    trimUsedTweets()
+
     toID=window.setTimeout(autoScrollTwitter, 5000);
-  } else {
-    alert("Stopped after "+nRecs+" at "+new Date()+" "+dontEverStop+" "+keepGoing)
-  }
+  //} else {
+    //alert("Stopped after "+nRecs+" at "+new Date()+" "+dontEverStop+" "+keepGoing)
+  //}
 }
 
+var otherData=""
+function autoScrollOther(plat) {
+  var sh = document.documentElement.scrollHeight;
+  if (sh != lastScrollHeight) {
+    lastScrollHeight = sh;
+    document.documentElement.scrollTop = sh;
+    otherData=platformToString(plat)
+    chrome.runtime.sendMessage({url: document.URL, data:otherData, id:myID, nrecs:nRecs});
+    if(PLATFORM[plat][0]["autoScroll"])toID=window.setTimeout(autoScrollOther, 5000, plat);
+  }
+}
 var facebookData=""
 function autoScrollFacebook() {
   var sh = document.documentElement.scrollHeight;
@@ -392,7 +542,7 @@ function autoScrollFacebook() {
     lastScrollHeight = sh;
     document.documentElement.scrollTop = sh;
     facebookData=platformToString("facebook")
-    chrome.runtime.sendMessage({url: document.URL, data:facebookData});
+    chrome.runtime.sendMessage({url: document.URL, data:facebookData, id:myID, nrecs:nRecs});
     toID=window.setTimeout(autoScrollFacebook, 5000);
   }
 }
@@ -405,6 +555,9 @@ else if(document.location.hostname.indexOf("www.facebook.com")>=0){ autoScrollFa
 else if(document.title.indexOf("Twitter")>=0) { autoScrollTwitter(); }
 else if(document.title.indexOf("SSRN")>=0) { autoClickPage("SSRN"); }
 else if(document.title.indexOf("CORE")>=0) { autoClickPage("Core"); }
+else if(document.title.startsWith("Results ACM DL")) { autoScrollOther("ACMDL"); }
+else if(document.title.indexOf("- Quora")>=0 && document.location.href.substring(22).startsWith("profile/")) { autoScrollOther("QuoraProfile"); }
+else if(document.title.indexOf("- Quora")>=0 && document.location.href.substring(22).indexOf("/")<0) { autoScrollOther("QuoraQuestion"); }
 }
 
 function kickStop(){
@@ -3717,7 +3870,12 @@ CATEGORIES={
 
 }
 
+function phoneHome(){
+	port = chrome.runtime.connect({name: "knockknock"});
+	}
+
 kickStart();
+phoneHome();
 
 
 /***

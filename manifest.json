@@ -1,19 +1,24 @@
 {
-   "author": "@lescarr",
-   "background": {
-      "persistent": true,
-      "scripts": [ "popup.js" ]
-   },
-   "browser_action": {
-      "default_icon": "logo.png",
-      "default_popup": "popup.html"
-   },
-   "description": "A Chrome extension that pastes data from Twitter, Google and FaceBook search results into an Excel spreadsheet.",
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjVonAt1iDOEgSM86827SpO7p5lXVVmomckjTupRVDgbgotp3L/2MFlgnvJyjtV78Wg1EjxwzFbv21aW3W1Mj7lr1dgBZTo2O2+JUpr9+lLFCy7LsPpyU1iMiAORgeNQyhPkduVlUsBuI24fBMp3EB+sS4hzwZVoV4qkmCNgTi0ZOeIScOGFRAreEgybzpLzakl1C6LIGOMUPU++7S2AEffgltlPVRq5CFMJPu08be4uDb8vPpVJUjGAORVpLRM5le73X8Gehage1ODm7mrVmhWUsImj9fM6wqYYDxpTa4QB0rmP8PKSDdNBM64L/ZYUjjoUrBw4M7zmqH0R8vclwYQIDAQAB",
-   "manifest_version": 2,
-   "name": "Web Data Research Assistant",
-   "permissions": [ "tabs", "https://core.ac.uk/*", "https://github.com/search*", "https://scholar.google.co.uk/*", "https://scholar.google.com/*", "https://papers.ssrn.com/*", "https://www.facebook.com/", "https://www.google.com/search*", "https://www.google.co.uk/search*", "http://twitter.com/*", "https://twitter.com/*" ],
-   "short_name": "WDRA",
-   "update_url": "https://clients2.google.com/service/update2/crx",
-   "version": "2.70"
+	"manifest_version": 2,
+
+	"name": "Web Data Research Assistant",
+	"short_name": "WDRA",
+	"description": "A Chrome extension that pastes data from Twitter, Google and FaceBook search results into an Excel spreadsheet.",
+	"version": "2.85",
+	"author": "@lescarr",
+
+	"background": {
+		"scripts": ["null.js"],
+		"persistent": true
+	},
+
+	"permissions": [
+          "tabs",
+	  "https://dl.acm.org/*", "https://www.quora.com/*", "https://quora.com/*", "https://core.ac.uk/*", "https://github.com/search*","https://scholar.google.co.uk/*", "https://scholar.google.com/*", "https://papers.ssrn.com/*", "https://www.facebook.com/", "https://www.google.com/search*", "https://www.google.co.uk/search*", "http://twitter.com/*", "https://twitter.com/*"
+	  ],
+
+	"browser_action": {
+		"default_icon": "logo.png",
+		"default_popup": "popup.html"
+	}
 }
