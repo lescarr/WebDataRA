@@ -2,8 +2,7 @@
 <html>
 
 <head>
-	<title>Web Data Research Assistant</title>
-	<script src="data.js"></script>
+	<title>Twitter Research Assistant</title>
 	<script src="popup.js"></script>
 <style>
 .savebutton {
@@ -17,18 +16,30 @@
   border-bottom: 1px solid #333333;
   border-left: 1px solid #CCCCCC;
 }
+.dissed {
+  color: #999999
+  }
+body {
+    min-width:300px;
+}
 </style>
 </head>
 
 <body>
-<h3>Web Data Research Assistant</h3>
-<p><img src="artwork.png" width="150px" align="right"/>This table has been copied onto your clipboard - paste it into Excel for further analysis.</p>
+<h3>Twitter Research Assistant</h3>
+<p><img src="artwork.png" width="150px" align="right"/>Data will be collected from Twitter that you can save into Excel for further analysis.</p>
 <ol><li>On a Twitter search results page or on a Facebook timeline page, the browser will continually scroll to the bottom of the page to trigger more results, until the page stays static for more than 5 seconds.</li>
 <li>Data will also be extracted from a search results on Google, Google Scholar, Github, SSRN, and Core. Press the button on each page of the search results and the data will be collected into a single table for convenience.</li>
 </ol>
 <p>For more information about using this software, see <a target="_blank" href="http://www.southampton.ac.uk/~lac/WebDataResearchAssistant/">the author's WebDataRA page</a>. Any questions or comments, please refer to <a href="mailto:lac@ecs.soton.ac.uk?Subject=WebDataRA">Leslie Carr</a>.
 Please be sure to treat the data according to the terms and conditions of the source.</p>
-<p><a class="savebutton" id="saveOutput" href="#">Save Data Tables as File</a></p>
-<p id='pagetitle'>If this element doesn't change to a data table then something has gone wrong!</p>
+<p>
+<a class="savebutton" id="scrollDown" href="#">Scroll Down</a>
+<a class="savebutton" id="startOutput" href="#">Start Collecting Data</a>
+<a class="savebutton" id="saveOutput" href="#">Save Data as File</a>
+<a class="savebutton" id="clearOutput" href="#">Clear Data</a>
+<a class="savebutton" id="refreshDisplay" href="#">Refresh Display</a>
+</p>
+<p id='pagetitle'>No data has been collected yet. Please wait for a few seconds...</p>
 </body>
 </html>

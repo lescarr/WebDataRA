@@ -1,0 +1,21 @@
+This now supports Twitter and Quora in primary/secondary mode.
+
+1) Collection of FEATURES and use in summary tables (Authors, Mentions, Hashtags, Edges) is bespoke and ad-hoc. Must be generalised. 
+1a) everything platform needs an ID to key the individual records
+1b) ID must be sortable into a reasonable order. It should be a type, not a name
+1c) The use of FEATURES across primary/secondary modes must be generalised
+1d) The relationship between platforms in primary/secondary modes must be generalised
+1e) Empty Hashtag/Edges tables clutter up Quora
+1f) Color of Users/Profiles is bespoke
+
+2) SPECIAL is bespoke and needs to be GENERALISED
+
+3) Duplicate messages need to be debugged. Two HELOs sometimes appear. WTF?
+A post-CLEAR message is always lost - that's fine.
+
+4) If "Scroll Downwards" gets to the end, (in the Chromeblahblah version) then
+nothing happens.
+
+5) Clear button doesn't cause the display to refresh. Message snafu.
+
+6) Need some indication that the state has changed to "FINISHED"
